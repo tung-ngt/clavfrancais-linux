@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+zbus = { version = "5.5.0", default-features = false, features = ["tokio"] }
+tokio = { version = "1.42.2", default-features = false, features = ["rt-multi-thread", "macros"] }
+serde = "1.0.219"
+zvariant = "5.4.0"
