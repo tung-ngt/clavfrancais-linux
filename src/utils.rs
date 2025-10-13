@@ -75,6 +75,16 @@ fn get_host_and_display() -> String {
     "unix-0".to_string()
 }
 
+pub fn find_word(text: &str, cursor_pos: usize) -> (usize, Vec<char>) {
+    let chars: Vec<char> = text.chars().collect();
+
+    let start = (0..cursor_pos)
+        .rposition(|i| chars[i].is_whitespace())
+        .map_or(1, |i| i + 1);
+
+    (start, chars[start..cursor_pos].to_vec())
+}
+
 #[cfg(test)]
 mod test {
     use crate::utils::get_ibus_address;

@@ -6,7 +6,7 @@ use zvariant::{OwnedValue, Value};
 pub struct Text {
     struct_type: String,
     attachments: HashMap<String, OwnedValue>,
-    text: String,
+    pub text: String,
     attr_list: OwnedValue,
 }
 

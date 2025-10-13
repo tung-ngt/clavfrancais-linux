@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use zvariant::{OwnedValue, Type, Value};
 
 #[derive(Serialize, Type, Value, OwnedValue, Default, Clone)]
@@ -54,44 +54,3 @@ impl EngineDesc {
         }
     }
 }
-
-//impl Arg for EngineDesc {
-//    const ARG_TYPE: dbus::arg::ArgType = ArgType::Struct;
-//    fn signature() -> dbus::Signature<'static> {
-//
-//(sa{sv}ssssssssusssssss)
-//(sa{sv}ssssssssusssssss)
-//        Signature::from("(sa{sv}ssssssssusssssss)")
-//    }
-//}
-//
-//impl Append for EngineDesc {
-//    fn append(self, i: &mut dbus::arg::IterAppend) {
-//        self.append_by_ref(i);
-//    }
-//
-//    fn append_by_ref(&self, i: &mut dbus::arg::IterAppend) {
-//        i.append_struct(|s| {
-//            s.append("IBusEngineDesc");
-//            s.append(HashMap::<String, String>::new());
-//
-//            s.append(self.name);
-//            s.append(self.longname);
-//            s.append(self.description);
-//            s.append(self.language);
-//            s.append(self.license);
-//            s.append(self.author);
-//            s.append(self.icon);
-//            s.append(self.layout);
-//            s.append(self.rank);
-//
-//            s.append(self.hotkeys);
-//            s.append(self.symbol);
-//            s.append(self.setup);
-//            s.append(self.layout_variant);
-//            s.append(self.layout_option);
-//            s.append(self.version);
-//            s.append(self.textdomain);
-//        });
-//    }
-//}

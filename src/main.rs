@@ -1,7 +1,7 @@
 use std::future;
 
 use clavfrancais_linux::{
-    bus::Bus, component::Component, engine::Engine, engine_desc::EngineDesc, factory::Factory,
+    bus::Bus, component::Component, engine::IBusEngine, engine_desc::EngineDesc, factory::Factory,
     utils::get_ibus_address,
 };
 
@@ -24,7 +24,7 @@ async fn main() {
     component.add_engine(engine_desc);
 
     let object_path = "/org/freedesktop/IBus/Engine/test/test";
-    let engine = Engine;
+    let engine = IBusEngine::default();
     bus.export_engine(engine, object_path).await;
     let factory = Factory::new(OwnedObjectPath::try_from(object_path).unwrap());
     bus.export_factory(factory).await;

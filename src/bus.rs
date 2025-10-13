@@ -1,5 +1,5 @@
 use super::component::Component;
-use crate::{engine::Engine, factory::Factory, proxies::IBusProxy};
+use crate::{engine::IBusEngine, factory::Factory, proxies::IBusProxy};
 use zbus::{fdo::DBusProxy, Connection};
 use zvariant::Value;
 
@@ -51,7 +51,7 @@ impl Bus<'_> {
         }
     }
 
-    pub async fn export_engine(&self, engine: Engine, object_path: &'_ str) {
+    pub async fn export_engine(&self, engine: IBusEngine, object_path: &'_ str) {
         if !self
             .connection
             .object_server()

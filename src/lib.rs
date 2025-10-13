@@ -3,6 +3,8 @@ pub mod component;
 pub mod engine;
 pub mod engine_desc;
 pub mod factory;
+pub mod keys_converter;
+pub mod modifier;
 pub mod proxies;
 pub mod text;
 pub mod utils;
