@@ -2,16 +2,17 @@ use clavfrancais_engine::{
     char_buffer::ResizableCharBuffer,
     engine::{setup_key_combination_map, CombinationTarget, Engine},
 };
-use xkbcommon::xkb::keysym_to_utf32;
+use xkbcommon::xkb::{
+    keysym_to_utf32,
+    keysyms::{KEY_BackSpace, KEY_space},
+};
 use zbus::{interface, object_server::SignalEmitter};
-use zvariant::{OwnedValue, Value};
+use zvariant::Value;
 
 use crate::{
-    modifier::{
-        ALT_MASK, CAP_KEY, CONTROL_MASK, LOOSE_FOCUS_MASK, RELEASE_MASK, SHIFT_KEY, SHIFT_MASK,
-    },
+    modifier::{LOOSE_FOCUS_MASK, RELEASE_MASK},
+    special_keys::{LOOSE_CONTROL_KEYS, UPPER_KEYS},
     text::Text,
-    utils::find_word,
 };
 
 pub struct IBusEngine {
@@ -29,7 +30,7 @@ impl Default for IBusEngine {
 }
 
 impl IBusEngine {
-    pub async fn clear_preedit(&mut self, emitter: SignalEmitter<'_>) {
+    pub async fn clear_preedit(&mut self, emitter: &SignalEmitter<'_>) {
         self.engine.clear_char_buffer();
         self.buffer.clear();
         emitter
@@ -37,113 +38,43 @@ impl IBusEngine {
             .await
             .expect("cannot clear");
     }
-}
 
-#[interface(name = "org.freedesktop.IBus.Engine")]
-impl IBusEngine {
-    pub async fn process_key_event(
-        &mut self,
-        #[zbus(signal_emitter)] emitter: SignalEmitter<'_>,
-        keyval: u32,
-        keycode: u32,
-        state: u32,
-    ) -> bool {
-        //Skip control and alt combination
-        if (state & LOOSE_FOCUS_MASK) != 0 {
-            self.clear_preedit(emitter).await;
+    pub async fn commit_buffer(&mut self, emitter: &SignalEmitter<'_>) -> bool {
+        if self.buffer.is_empty() {
+            return false;
+        }
+        emitter
+            .commit_text(Value::from(Text::new(&self.buffer)))
+            .await
+            .expect("Cannot emmit");
+
+        self.clear_preedit(emitter).await;
+        true
+    }
+
+    pub async fn handle_backspace(&mut self, emitter: &SignalEmitter<'_>) -> bool {
+        if self.buffer.is_empty() {
             return false;
         }
 
-        //Skip key up event
-        if (state & RELEASE_MASK) != 0 {
-            return false;
-        }
+        self.buffer.pop();
+        self.engine.backspace();
 
-        //Skip shift and cap
-        if (keyval == CAP_KEY) || (keyval == SHIFT_KEY) {
-            return false;
-        }
+        emitter
+            .update_preedit_text(
+                Value::from(Text::new(&self.buffer)),
+                self.buffer.len() as u32,
+                true,
+                1,
+            )
+            .await
+            .expect("failed");
 
-        let u = keysym_to_utf32(keyval.into());
-        let unicode_char: Option<char> = char::from_u32(u);
+        true
+    }
 
-        println!("{}, {:?}, {}, {}", keyval, unicode_char, keycode, state);
-
-        if u == 0 {
-            emitter
-                .commit_text(Value::from(Text::new(&self.buffer)))
-                .await
-                .expect("Cannot emmit");
-
-            self.clear_preedit(emitter).await;
-            return false;
-        }
-
-        if unicode_char == Some('\u{8}') {
-            if self.buffer.is_empty() {
-                return false;
-            }
-
-            self.buffer.pop();
-            self.engine.backspace();
-
-            emitter
-                .update_preedit_text(
-                    Value::from(Text::new(&self.buffer)),
-                    self.buffer.len() as u32,
-                    true,
-                    1,
-                )
-                .await
-                .expect("failed");
-
-            return true;
-        };
-
-        if unicode_char == Some('\t') {
-            if self.buffer.is_empty() {
-                return false;
-            }
-
-            emitter
-                .commit_text(Value::from(Text::new(&self.buffer)))
-                .await
-                .expect("Cannot emmit");
-
-            self.clear_preedit(emitter).await;
-
-            return false;
-        }
-
-        if unicode_char == Some('\r') {
-            if self.buffer.is_empty() {
-                return false;
-            }
-
-            emitter
-                .commit_text(Value::from(Text::new(&self.buffer)))
-                .await
-                .expect("Cannot emmit");
-
-            self.clear_preedit(emitter).await;
-
-            return false;
-        }
-
-        if unicode_char == Some(' ') {
-            self.buffer.push(' ');
-
-            emitter
-                .commit_text(Value::from(Text::new(&self.buffer)))
-                .await
-                .expect("Cannot emmit");
-
-            self.clear_preedit(emitter).await;
-
-            return true;
-        }
-
-        if let Some(combination_target) = self.engine.add_char(unicode_char.unwrap()) {
+    pub async fn handle_combination(&mut self, emitter: &SignalEmitter<'_>, unicode_char: char) {
+        if let Some(combination_target) = self.engine.add_char(unicode_char) {
             match combination_target {
                 CombinationTarget::Replace(c) => {
                     self.buffer.push(c);
@@ -159,8 +90,9 @@ impl IBusEngine {
                 }
             }
         } else {
-            self.buffer.push(unicode_char.unwrap());
+            self.buffer.push(unicode_char);
         }
+
         emitter
             .update_preedit_text(
                 Value::from(Text::new(&self.buffer)),
@@ -170,6 +102,61 @@ impl IBusEngine {
             )
             .await
             .expect("cannot update preedit");
+    }
+}
+
+#[interface(name = "org.freedesktop.IBus.Engine")]
+impl IBusEngine {
+    pub async fn process_key_event(
+        &mut self,
+        #[zbus(signal_emitter)] emitter: SignalEmitter<'_>,
+        keyval: u32,
+        keycode: u32,
+        state: u32,
+    ) -> bool {
+        //Skip key up event
+        if (state & RELEASE_MASK) != 0 {
+            println!("skip key release");
+            return false;
+        }
+
+        //Skip control and alt combination
+        if (state & LOOSE_FOCUS_MASK) != 0 {
+            println!("skip ctrl alt meta combination");
+            return false;
+        }
+
+        //Skip shift and cap
+        if UPPER_KEYS.contains(&keyval) {
+            println!("skip upper keys");
+            return false;
+        }
+
+        if keyval == KEY_BackSpace {
+            println!("handle backspace");
+            return self.handle_backspace(&emitter).await;
+        }
+
+        if keyval == KEY_space {
+            println!("handle space");
+            self.buffer.push(' ');
+            return self.commit_buffer(&emitter).await;
+        }
+
+        let unicode_char = keyval_to_unicode_char(keyval);
+
+        println!(
+            "keyval: {}, unicode: {:?}, key_code: {}, state: {}",
+            keyval, unicode_char, keycode, state
+        );
+
+        let Some(unicode_char) = unicode_char else {
+            println!("cannot convert unicode, commit buffer and skip");
+            self.commit_buffer(&emitter).await;
+            return false;
+        };
+
+        self.handle_combination(&emitter, unicode_char).await;
 
         true
     }
@@ -212,7 +199,7 @@ impl IBusEngine {
 
     pub async fn reset(&mut self, #[zbus(signal_emitter)] emitter: SignalEmitter<'_>) {
         println!("reset");
-        self.clear_preedit(emitter).await;
+        self.clear_preedit(&emitter).await;
     }
 
     pub async fn set_capabilities(&self) {
@@ -241,4 +228,12 @@ impl IBusEngine {
         emitter: &SignalEmitter<'_>,
         text: Value<'_>,
     ) -> Result<(), zbus::Error>;
+}
+
+fn keyval_to_unicode_char(keyval: u32) -> Option<char> {
+    let u = keysym_to_utf32(keyval.into());
+    if u == 0 {
+        return None;
+    }
+    char::from_u32(u).and_then(|c| if char::is_control(c) { None } else { Some(c) })
 }

@@ -5,5 +5,6 @@ pub mod engine_desc;
 pub mod factory;
 pub mod modifier;
 pub mod proxies;
+pub mod special_keys;
 pub mod text;
 pub mod utils;
