@@ -5,22 +5,22 @@ use zvariant::Value;
 
 pub struct Bus<'a> {
     connection: Connection,
-    dbus_proxy: DBusProxy<'a>,
+    //dbus_proxy: DBusProxy<'a>,
     ibus_proxy: IBusProxy<'a>,
 }
 
 impl Bus<'_> {
     pub async fn new(connection: Connection) -> Self {
-        let dbus_proxy = DBusProxy::new(&connection)
-            .await
-            .expect("failed create dbus proxy");
+        //let dbus_proxy = DBusProxy::new(&connection)
+        //    .await
+        //    .expect("failed create dbus proxy");
         let ibus_proxy = IBusProxy::new(&connection)
             .await
             .expect("failed create ibus proxy");
 
         Self {
             connection,
-            dbus_proxy,
+            //dbus_proxy,
             ibus_proxy,
         }
     }

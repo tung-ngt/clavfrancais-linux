@@ -11,7 +11,7 @@ use zvariant::Value;
 
 use crate::{
     modifier::{LOOSE_FOCUS_MASK, RELEASE_MASK},
-    special_keys::{LOOSE_CONTROL_KEYS, UPPER_KEYS},
+    special_keys::UPPER_KEYS,
     text::Text,
 };
 
@@ -114,6 +114,12 @@ impl IBusEngine {
         keycode: u32,
         state: u32,
     ) -> bool {
+        println!(
+            "keyval: {}, key_code: {}, state: {}",
+            keyval, keycode, state
+        );
+        //return false;
+
         //Skip key up event
         if (state & RELEASE_MASK) != 0 {
             println!("skip key release");
@@ -122,7 +128,7 @@ impl IBusEngine {
 
         //Skip control and alt combination
         if (state & LOOSE_FOCUS_MASK) != 0 {
-            println!("skip ctrl alt meta combination");
+            println!("skip ctrl alt super combination");
             return false;
         }
 

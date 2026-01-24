@@ -39,7 +39,7 @@ async fn main() {
         .textdomain("")
         .add_engine(engine_desc);
 
-    let object_path = "/org/freedesktop/IBus/Engine/test/test";
+    let object_path = "/org/freedesktop/IBus/Engine/Clavfrancais/engine";
     let engine = IBusEngine::default();
     bus.export_engine(engine, object_path).await;
     let factory = Factory::new(OwnedObjectPath::try_from(object_path).unwrap());
