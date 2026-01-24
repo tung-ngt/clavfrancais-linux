@@ -19,9 +19,25 @@ async fn main() {
         .expect("Cannot build the connection");
 
     let bus = Bus::new(connection).await;
-    let mut component = Component::new("abc", "abc", "abc", "abc", "abc", "abc", "abc", "abc");
-    let engine_desc = EngineDesc::new("abcd", "abc", "abc", "abc", "abc", "abc", "abc", "abc");
-    component.add_engine(engine_desc);
+
+    let engine_desc = EngineDesc::new("clavfrancais")
+        .longname("clavfrancais")
+        .description("French input method for qwert keyboard layout")
+        .language("fr")
+        .license("None")
+        .author("Nguyen Thanh Tung")
+        .icon("icon.jpg")
+        .layout("us");
+
+    let component = Component::new("clavfrancais")
+        .description("French input method for qwert keyboard layout")
+        .version("0.1.0")
+        .license("None")
+        .author("Nguyen Thanh Tung")
+        .homepage("")
+        .command_line("")
+        .textdomain("")
+        .add_engine(engine_desc);
 
     let object_path = "/org/freedesktop/IBus/Engine/test/test";
     let engine = IBusEngine::default();
@@ -31,9 +47,7 @@ async fn main() {
 
     bus.register_component(component).await;
 
-    bus.set_global_engine("abcd".to_string()).await;
-    println!("fuck");
-
+    bus.set_global_engine("clavfrancais".to_string()).await;
     loop {
         future::pending::<()>().await;
     }

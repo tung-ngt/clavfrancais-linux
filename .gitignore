@@ -1,1 +1,4 @@
 /target
+'
+*.xml
+!example.xml

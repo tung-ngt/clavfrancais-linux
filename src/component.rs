@@ -18,39 +18,63 @@ pub struct Component {
     homepage: String,
     command_line: String,
     textdomain: String,
+
     observations: Vec<OwnedValue>,
     engines: Vec<OwnedValue>,
 }
 
 impl Component {
-    pub fn new(
-        name: &'static str,
-        description: &'static str,
-        version: &'static str,
-        license: &'static str,
-        author: &'static str,
-        homepage: &'static str,
-        command_line: &'static str,
-        textdomain: &'static str,
-    ) -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
             struct_type: "IBusComponent".to_owned(),
-
             name: name.to_owned(),
-            description: description.to_owned(),
-            version: version.to_owned(),
-            license: license.to_owned(),
-            author: author.to_owned(),
-            homepage: homepage.to_owned(),
-            command_line: command_line.to_owned(),
-            textdomain: textdomain.to_owned(),
-
             ..Default::default()
         }
     }
 
-    pub fn add_engine(&mut self, engine: EngineDesc) {
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = name.to_string();
+        self
+    }
+
+    pub fn description(mut self, description: &str) -> Self {
+        self.description = description.to_string();
+        self
+    }
+
+    pub fn version(mut self, version: &str) -> Self {
+        self.version = version.to_string();
+        self
+    }
+
+    pub fn license(mut self, license: &str) -> Self {
+        self.license = license.to_string();
+        self
+    }
+
+    pub fn author(mut self, author: &str) -> Self {
+        self.author = author.to_string();
+        self
+    }
+
+    pub fn homepage(mut self, homepage: &str) -> Self {
+        self.homepage = homepage.to_string();
+        self
+    }
+
+    pub fn command_line(mut self, command_line: &str) -> Self {
+        self.command_line = command_line.to_string();
+        self
+    }
+
+    pub fn textdomain(mut self, textdomain: &str) -> Self {
+        self.textdomain = textdomain.to_string();
+        self
+    }
+
+    pub fn add_engine(mut self, engine: EngineDesc) -> Self {
         self.engines
             .push(OwnedValue::try_from(engine).expect("cannot add engine"));
+        self
     }
 }
