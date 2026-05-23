@@ -3,8 +3,11 @@ pub mod component;
 pub mod engine;
 pub mod engine_desc;
 pub mod factory;
-pub mod modifier;
-pub mod proxies;
-pub mod special_keys;
-pub mod text;
-pub mod utils;
+
+mod bus_builder;
+mod flags;
+mod preedit_lose_focus;
+mod proxies;
+mod special_keys;
+mod text;
+mod text_attribute;

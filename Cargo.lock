@@ -81,7 +81,7 @@ dependencies = [
 [[package]]
 name = "clavfrancais_engine"
 version = "0.1.0"
-source = "git+https://github.com/tung-ngt/clavfrancais-engine.git#8a81982fa95d420f89376864cb2971d0c7ef72c0"
+source = "git+https://github.com/tung-ngt/clavfrancais-engine.git#9c722d94d706b2257e11daffce26f53ebbd220e1"
 
 [[package]]
 name = "concurrent-queue"

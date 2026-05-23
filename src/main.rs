@@ -1,24 +1,14 @@
-use std::future;
+use std::{env, future};
 
 use clavfrancais_linux::{
     bus::Bus, component::Component, engine::IBusEngine, engine_desc::EngineDesc, factory::Factory,
-    utils::get_ibus_address,
 };
 
-use zbus::connection;
 use zvariant::OwnedObjectPath;
 
 #[tokio::main]
 async fn main() {
-    let address = get_ibus_address();
-    let connection = connection::Builder::address(address.as_str())
-        .expect("Cannot create connection to the address")
-        .auth_mechanism(zbus::AuthMechanism::External)
-        .build()
-        .await
-        .expect("Cannot build the connection");
-
-    let bus = Bus::new(connection).await;
+    let bus = Bus::builder().default_ibus_address().build().await;
 
     let engine_desc = EngineDesc::new("clavfrancais")
         .longname("clavfrancais")
@@ -47,7 +37,18 @@ async fn main() {
 
     bus.register_component(component).await;
 
-    bus.set_global_engine("clavfrancais".to_string()).await;
+    println!("Engine itialized");
+
+    // Only imediately set the engine if called in standalone mode (not from ibus)
+    if let Some(arg) = env::args().nth(1)
+        && arg == "standalone"
+    {
+        println!("Running in standalone mode, setting the engine to clavfrancais");
+        bus.set_global_engine("clavfrancais".to_string()).await;
+    } else {
+        println!("Waiting for user to change clavfrancais engine")
+    }
+
     loop {
         future::pending::<()>().await;
     }

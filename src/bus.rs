@@ -1,23 +1,16 @@
 use super::component::Component;
-use crate::{engine::IBusEngine, factory::Factory, proxies::IBusProxy};
+use crate::{bus_builder::BusBuilder, engine::IBusEngine, factory::Factory, proxies::IBusProxy};
 use zbus::Connection;
 use zvariant::Value;
 
 pub struct Bus<'a> {
-    connection: Connection,
-    ibus_proxy: IBusProxy<'a>,
+    pub(crate) connection: Connection,
+    pub(crate) ibus_proxy: IBusProxy<'a>,
 }
 
 impl Bus<'_> {
-    pub async fn new(connection: Connection) -> Self {
-        let ibus_proxy = IBusProxy::new(&connection)
-            .await
-            .expect("failed create ibus proxy");
-
-        Self {
-            connection,
-            ibus_proxy,
-        }
+    pub fn builder() -> BusBuilder {
+        BusBuilder::default()
     }
 
     pub async fn register_component(&self, component: Component) {

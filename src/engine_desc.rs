@@ -26,12 +26,15 @@ pub struct EngineDesc {
     layout_option: String,
     version: String,
     textdomain: String,
+    icon_prop_key: String,
 }
 
 impl EngineDesc {
+    pub const IBUS_CLASS: &str = "IBusEngineDesc";
+
     pub fn new(name: &str) -> Self {
         Self {
-            struct_type: "IBusEngineDesc".to_string(),
+            struct_type: Self::IBUS_CLASS.to_string(),
             name: name.to_string(),
             ..Default::default()
         }

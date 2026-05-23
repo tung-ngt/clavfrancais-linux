@@ -24,9 +24,11 @@ pub struct Component {
 }
 
 impl Component {
+    pub const IBUS_CLASS: &str = "IBusComponent";
+
     pub fn new(name: &str) -> Self {
         Self {
-            struct_type: "IBusComponent".to_owned(),
+            struct_type: Self::IBUS_CLASS.to_owned(),
             name: name.to_owned(),
             ..Default::default()
         }
