@@ -11,11 +11,15 @@ impl Capability {
 
 pub struct KeyState;
 
+#[allow(unused)]
 impl KeyState {
+    pub const SHIFT: u32 = 1 << 0;
+    pub const CAPLOCK: u32 = 1 << 1;
     pub const CONTROL: u32 = 1 << 2;
     pub const ALT: u32 = 1 << 3;
+    pub const NUM_LOCK: u32 = 1 << 4;
 
-    pub const MOD2: u32 = 1 << 4;
+    pub const MOD3: u32 = 1 << 5;
     pub const MOD4: u32 = 1 << 6;
     pub const MOD5: u32 = 1 << 7;
 
@@ -26,7 +30,7 @@ impl KeyState {
     pub const LOOSE_FOCUS: u32 = Self::CONTROL
         | Self::ALT
         | Self::SUPER
-        | Self::MOD2
+        | Self::MOD3
         | Self::MOD4
         | Self::MOD5
         | Self::SUPER

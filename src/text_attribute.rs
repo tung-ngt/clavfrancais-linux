@@ -85,14 +85,14 @@ impl PreeditAtribute {
 impl Attribute {
     pub const IBUS_CLASS: &str = "IBusAttribute";
 
-    pub fn underline() -> Self {
+    pub fn underline(text_length: u32) -> Self {
         Self {
             struct_type: Self::IBUS_CLASS.to_string(),
             attachments: HashMap::new(),
             attribute_type: AtrributeType::Hint.value(),
-            value: PreeditAtribute::Whole.value(),
+            value: PreeditAtribute::Default.value(),
             start_index: 0,
-            end_index: u32::MAX,
+            end_index: text_length,
         }
     }
 }
@@ -107,13 +107,12 @@ pub struct AttrList {
 impl AttrList {
     pub const IBUS_CLASS: &str = "IBusAttrList";
 
-    pub fn with_underline() -> Self {
+    pub fn with_underline(text_length: u32) -> Self {
         Self {
             struct_type: Self::IBUS_CLASS.to_string(),
             attachments: HashMap::new(),
-            attributes: vec![
-                OwnedValue::try_from(Attribute::underline()).expect("cannot create Attribute")
-            ],
+            attributes: vec![OwnedValue::try_from(Attribute::underline(text_length))
+                .expect("cannot create Attribute")],
         }
     }
 }

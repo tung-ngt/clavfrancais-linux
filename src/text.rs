@@ -16,11 +16,12 @@ impl Text {
     pub const IBUS_CLASS: &str = "IBusText";
 
     pub fn new(text: &'_ str) -> Self {
+        let text_len = text.chars().count() as u32;
         Self {
             struct_type: Self::IBUS_CLASS.to_string(),
             attachments: HashMap::new(),
             text: text.to_string(),
-            attr_list: OwnedValue::try_from(AttrList::with_underline())
+            attr_list: OwnedValue::try_from(AttrList::with_underline(text_len))
                 .expect("failed to create text"),
         }
     }
